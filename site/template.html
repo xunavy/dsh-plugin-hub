@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DSH Plugin Hub · DeepSeek Harness 插件聚合</title>
+<style>
+  :root {
+    --bg: #0b0d13;
+    --panel: #12151d;
+    --panel-2: #171b25;
+    --border: #222836;
+    --border-soft: #1b202c;
+    --text: #e8eaf1;
+    --muted: #8b94a7;
+    --faint: #5b6474;
+    --blue: #4d6bfe;
+    --cyan: #38d9c9;
+    --amber: #f5b83d;
+    --pink: #ff6d9c;
+    --green: #3ddc84;
+    --mono: "SFMono-Regular", "JetBrains Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(77,107,254,.14), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(56,217,201,.08), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font: 15px/1.55 -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: var(--cyan); }
+
+  .wrap { max-width: 1060px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---------- header ---------- */
+  header.hero { padding: 42px 0 26px; border-bottom: 1px solid var(--border-soft); }
+  .brand { display: flex; align-items: center; gap: 16px; }
+  .logo {
+    width: 52px; height: 52px; border-radius: 14px; flex: 0 0 auto;
+    display: grid; place-items: center;
+    background: linear-gradient(135deg, var(--blue), #7c5cff 70%, var(--cyan));
+    font-weight: 800; font-size: 17px; letter-spacing: .5px; color: #fff;
+    box-shadow: 0 8px 28px -6px rgba(77,107,254,.55);
+  }
+  h1 { margin: 0; font-size: 26px; letter-spacing: .3px; }
+  h1 .accent { color: var(--cyan); }
+  .sub { margin: 4px 0 0; color: var(--muted); font-size: 13.5px; }
+  .sub b { color: var(--text); font-weight: 600; }
+  .stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+  .pill {
+    border: 1px solid var(--border); background: var(--panel);
+    border-radius: 999px; padding: 7px 14px; font-size: 12.5px; color: var(--muted);
+  }
+  .pill b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .pill .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 7px; vertical-align: 1px; }
+  .dot.blue { background: var(--blue); } .dot.cyan { background: var(--cyan); }
+  .dot.green { background: var(--green); box-shadow: 0 0 0 3px rgba(61,220,132,.15); }
+  .dot.amber { background: var(--amber); }
+
+  /* ---------- controls ---------- */
+  main { padding: 22px 0 60px; }
+  .bar { position: sticky; top: 0; z-index: 20; background: rgba(11,13,19,.86); backdrop-filter: blur(10px);
+         margin: 0 -20px; padding: 12px 20px; border-bottom: 1px solid var(--border-soft); display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tab {
+    appearance: none; cursor: pointer; border: 1px solid var(--border); background: var(--panel);
+    color: var(--muted); border-radius: 9px; padding: 7px 13px; font-size: 13px; font-weight: 500;
+    transition: .15s;
+  }
+  .tab:hover { color: var(--text); border-color: #33405a; }
+  .tab.on { color: #fff; background: linear-gradient(135deg, var(--blue), #6f5bff); border-color: transparent; box-shadow: 0 4px 16px -4px rgba(77,107,254,.55); }
+  .controls { display: flex; gap: 8px; align-items: center; margin-left: auto; }
+  input[type=search], select {
+    background: var(--panel); border: 1px solid var(--border); color: var(--text);
+    border-radius: 9px; padding: 8px 12px; font-size: 13px; outline: none; min-width: 0;
+  }
+  input[type=search] { width: 240px; }
+  input[type=search]::placeholder { color: var(--faint); }
+  input[type=search]:focus, select:focus { border-color: var(--blue); }
+  select { max-width: 180px; }
+  .note { color: var(--faint); font-size: 12.5px; padding: 14px 2px 6px; }
+
+  /* ---------- cards ---------- */
+  ol.cards { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+  .card {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px;
+    display: grid; grid-template-columns: 46px 1fr auto; gap: 14px; align-items: start;
+    transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: #34405e; transform: translateY(-1px); }
+  .rank {
+    width: 42px; height: 42px; border-radius: 11px; display: grid; place-items: center;
+    font-weight: 700; font-size: 15px; background: var(--panel); border: 1px solid var(--border);
+    color: var(--muted); font-variant-numeric: tabular-nums;
+  }
+  .rank.top1 { background: linear-gradient(135deg,#f5b83d,#ff8a3d); color: #1a1200; border-color: transparent; }
+  .rank.top2 { background: linear-gradient(135deg,#cfe0e8,#aebfd0); color: #11161f; border-color: transparent; }
+  .rank.top3 { background: linear-gradient(135deg,#e9a170,#c17a4b); color: #1a0f06; border-color: transparent; }
+  .body { min-width: 0; }
+  .title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .name { font-family: var(--mono); font-weight: 600; font-size: 14.5px; color: var(--text); }
+  .name .owner { color: var(--muted); font-weight: 500; }
+  .chip {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px; color: var(--cyan);
+    background: rgba(56,217,201,.1); border: 1px solid rgba(56,217,201,.25); white-space: nowrap;
+  }
+  .desc { margin: 7px 0 9px; color: #c4cad8; font-size: 13.5px; }
+  .desc-zh { color: var(--muted); font-size: 12.5px; margin-top: -4px; }
+  .metrics { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .metrics span { display: inline-flex; align-items: center; gap: 5px; }
+  .metrics b { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 600; }
+  .m-star b { color: var(--amber); } .m-dl b { color: var(--cyan); }
+  .cmd {
+    display: flex; align-items: center; gap: 8px; margin-top: 12px;
+    background: #0a0c11; border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px;
+    font-family: var(--mono); font-size: 12.5px; color: #9fe8dd; overflow: hidden;
+  }
+  .cmd .pre { color: var(--faint); user-select: none; }
+  .cmd code { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .copy-btn {
+    margin-left: auto; flex: 0 0 auto; cursor: pointer; appearance: none;
+    background: rgba(77,107,254,.16); border: 1px solid rgba(77,107,254,.45); color: #b9c6ff;
+    border-radius: 7px; padding: 5px 11px; font-size: 12px; font-weight: 600; transition: .15s;
+  }
+  .copy-btn:hover { background: var(--blue); color: #fff; }
+  .copy-btn.done { background: var(--green); border-color: transparent; color: #07130c; }
+  .links { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .link {
+    font-size: 12px; color: var(--muted); border: 1px solid var(--border);
+    border-radius: 7px; padding: 4px 10px; transition: .15s;
+  }
+  .link:hover { color: var(--cyan); border-color: rgba(56,217,201,.4); }
+  .side { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+  .side .big { font-variant-numeric: tabular-nums; }
+  .more { text-align: center; padding: 20px 0 8px; }
+  .btn-ghost {
+    appearance: none; cursor: pointer; background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 9px; padding: 8px 18px; font-size: 13px; transition: .15s;
+  }
+  .btn-ghost:hover { color: var(--text); border-color: var(--blue); }
+
+  footer { border-top: 1px solid var(--border-soft); padding: 26px 0 40px; color: var(--faint); font-size: 12.5px; }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--cyan); }
+  .warn {
+    margin-top: 10px; color: #e0a36a; border: 1px solid rgba(245,184,61,.25);
+    background: rgba(245,184,61,.06); border-radius: 9px; padding: 10px 14px; font-size: 12.5px;
+  }
+  .empty { color: var(--faint); text-align: center; padding: 50px 0; }
+
+  @media (max-width: 720px) {
+    .card { grid-template-columns: 38px 1fr; }
+    .rank { width: 36px; height: 36px; font-size: 13px; }
+    .side { grid-column: 2; flex-direction: row; align-items: center; }
+    input[type=search] { width: 100%; }
+    .controls { width: 100%; margin-left: 0; }
+    .controls select { flex: 1; max-width: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="brand">
+      <div class="logo">DSH</div>
+      <div>
+        <h1>DSH Plugin Hub<span class="accent"> ·</span> DeepSeek Harness 插件聚合</h1>
+        <p class="sub">最新 <b>top plugin</b> 榜单 · 每张卡片都带<b>可直接加载</b>的 <code>dsh plugin add</code> 命令</p>
+      </div>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <main>
+    <div class="bar">
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-mode="hot">🔥 热门</button>
+        <button class="tab" data-mode="dl">⬇ 下载</button>
+        <button class="tab" data-mode="st">⭐ 星标</button>
+        <button class="tab" data-mode="new">🆕 新晋</button>
+      </div>
+      <div class="controls">
+        <input id="search" type="search" placeholder="搜索插件 / 作者 / 描述…" autocomplete="off" />
+        <select id="cat"></select>
+      </div>
+    </div>
+    <div class="note" id="note"></div>
+    <ol class="cards" id="list"></ol>
+    <div class="empty" id="empty" style="display:none">没有匹配的插件，换个关键词或分类试试。</div>
+    <div class="more" id="moreWrap"><button class="btn-ghost" id="more">加载更多</button></div>
+  </main>
+
+  <footer>
+    <p>
+      数据源：<a href="https://awesome-dsh-plugin.com/plugins.json" rel="noopener">awesome-dsh-plugin.com/plugins.json</a>
+      （官方目录自动维护）· 生成于 <span id="gen">—</span> ·
+      榜单涵盖 <span id="genCount">0</span> 个插件
+    </p>
+    <p>
+      直接加载语法为 <code>dsh plugin --profile web add &lt;包名|github:owner/repo&gt;</code>。
+      平台本体：<a href="https://github.com/deepseek-ai/deepseek-harness" rel="noopener">deepseek-ai/deepseek-harness</a>。
+    </p>
+    <div class="warn">⚠️ 插件会以你的权限在本机运行第三方代码，可能读写文件、使用凭证、联网。
+      榜单收录不代表安全审查 —— 安装前请先打开 GitHub 链接审阅源码。</div>
+  </footer>
+</div>
+
+<script id="catalog-data" type="application/json">__CATALOG_JSON__</script>
+<script>
+(function () {
+  'use strict';
+
+  // ---------- 数据 ----------
+  let DATA = { plugins: [], categories: {}, count: 0, generatedAt: null, sourceUpdated: null };
+  try { DATA = JSON.parse(document.getElementById('catalog-data').textContent); } catch (e) {}
+  const CATS = DATA.categories || {};
+  const plugins = (DATA.plugins || []).map(function (p) {
+    return {
+      name: p.name, owner: p.owner, url: p.url, page: p.page, category: p.category,
+      description: p.description || {}, npm: p.npm, install: p.install, added: p.added || null,
+      stars: p.stars == null ? null : Number(p.stars),
+      downloads: p.downloads == null ? null : Number(p.downloads),
+    };
+  });
+
+  const esc = function (s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+  const nf = function (n) { return n == null ? '—' : n.toLocaleString('en-US'); };
+  const catLabel = function (k) { var c = CATS[k]; return (c && (c.zh || c.en)) || k || 'other'; };
+
+  // ---------- 排名 ----------
+  const hotScore = function (p) {
+    return Math.log10(1 + (p.downloads || 0)) * 2 + Math.log10(1 + (p.stars || 0));
+  };
+  const t = function (v) { return v ? new Date(v).getTime() : 0; };
+  const byDl = function (a, b) {
+    var x = a.downloads, y = b.downloads;
+    if ((x == null) !== (y == null)) return x == null ? 1 : -1;
+    if (x != null && x !== y) return y - x;
+    return (b.stars ?? -1) - (a.stars ?? -1);
+  };
+  const bySt = function (a, b) {
+    var x = a.stars, y = b.stars;
+    if ((x == null) !== (y == null)) return x == null ? 1 : -1;
+    if (x != null && x !== y) return y - x;
+    return (b.downloads ?? -1) - (a.downloads ?? -1);
+  };
+  const SORTS = {
+    hot: { label: '🔥 按热度（下载×星标综合）', fn: function (a, b) { return hotScore(b) - hotScore(a); } },
+    dl:  { label: '⬇ 按 30 日 npm 下载量', fn: byDl },
+    st:  { label: '⭐ 按仓库星标', fn: bySt },
+    new: { label: '🆕 按新上榜时间', fn: function (a, b) { return t(b.added) - t(a.added); } },
+  };
+
+  // ---------- 直装命令 ----------
+  const installOf = function (p) {
+    if (p.install) return p.install;
+    if (p.npm) return 'dsh plugin --profile web add ' + p.npm;
+    return 'dsh plugin --profile web add github:' + p.owner + '/' + p.name;
+  };
+
+  // ---------- 状态 ----------
+  let mode = 'hot', query = '', cat = 'all', visible = 60;
+
+  const $ = function (id) { return document.getElementById(id); };
+  const listEl = $('list'), noteEl = $('note'), searchEl = $('search'), catEl = $('cat');
+
+  function filtered() {
+    const q = query.trim().toLowerCase();
+    let arr = plugins.filter(function (p) {
+      if (cat !== 'all' && p.category !== cat) return false;
+      if (!q) return true;
+      const hay = [
+        p.name, p.owner, p.owner + '/' + p.name, p.npm,
+        (p.description.en || ''), (p.description.zh || ''),
+      ].join('\n').toLowerCase();
+      return hay.indexOf(q) !== -1;
+    });
+    arr.sort(SORTS[mode].fn);
+    return arr;
+  }
+
+  function render() {
+    const arr = filtered();
+    noteEl.textContent = '共 ' + arr.length + ' 个插件 · 排序：' + SORTS[mode].label;
+    $('moreWrap').style.display = arr.length > visible ? '' : 'none';
+    $('empty').style.display = arr.length === 0 ? '' : 'none';
+
+    const slice = arr.slice(0, visible);
+    listEl.innerHTML = slice.map(function (p, i) {
+      const rank = i + 1;
+      const cls = rank === 1 ? 'top1' : rank === 2 ? 'top2' : rank === 3 ? 'top3' : '';
+      const d = p.description || {};
+      const zh = d.zh && d.zh !== d.en ? '<div class="desc-zh">' + esc(d.zh) + '</div>' : '';
+      const npmLink = p.npm ? '<a class="link" href="https://www.npmjs.com/package/' + encodeURIComponent(p.npm) + '" target="_blank" rel="noopener">npm ↗</a>' : '';
+      const pageLink = p.page ? '<a class="link" href="' + esc(p.page) + '" target="_blank" rel="noopener">详情 ↗</a>' : '';
+      return (
+        '<li class="card">' +
+          '<div class="rank ' + cls + '">' + rank + '</div>' +
+          '<div class="body">' +
+            '<div class="title-row">' +
+              '<span class="name"><span class="owner">' + esc(p.owner) + '/</span>' + esc(p.name) + '</span>' +
+              '<span class="chip">' + esc(catLabel(p.category)) + '</span>' +
+            '</div>' +
+            '<div class="desc">' + esc(d.en || d.zh || '') + '</div>' + zh +
+            '<div class="metrics">' +
+              '<span class="m-star">★ <b>' + nf(p.stars) + '</b></span>' +
+              '<span class="m-dl">↓30d <b>' + nf(p.downloads) + '</b></span>' +
+              '<span>🕐 <b>' + esc((p.added || '').slice(0, 10)) + '</b></span>' +
+            '</div>' +
+            '<div class="cmd"><span class="pre">$</span><code>' + esc(installOf(p)) + '</code>' +
+              '<button class="copy-btn" data-cmd="' + esc(installOf(p)) + '">复制</button></div>' +
+            '<div class="links">' +
+              '<a class="link" href="' + esc(p.url) + '" target="_blank" rel="noopener">GitHub ↗</a>' +
+              npmLink + pageLink +
+            '</div>' +
+          '</div>' +
+          '<div class="side"><div class="big"></div></div>' +
+        '</li>'
+      );
+    }).join('');
+
+    // 复制按钮
+    listEl.querySelectorAll('.copy-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        copyText(btn.dataset.cmd).then(function (ok) {
+          if (ok) {
+            const old = btn.textContent;
+            btn.textContent = '已复制 ✓';
+            btn.classList.add('done');
+            setTimeout(function () { btn.textContent = old; btn.classList.remove('done'); }, 1400);
+          }
+        });
+      });
+    });
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text).then(function () { return true; }).catch(function () {
+        return fallbackCopy(text);
+      });
+    }
+    return Promise.resolve(fallbackCopy(text));
+  }
+  function fallbackCopy(text) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      const ok = document.execCommand('copy');
+      ta.remove(); return ok;
+    } catch (e) { return false; }
+  }
+
+  // ---------- 统计 ----------
+  function renderStats() {
+    const npmCount = plugins.filter(function (p) { return p.npm; }).length;
+    const gitCount = plugins.length - npmCount;
+    $('stats').innerHTML =
+      '<span class="pill"><span class="dot green"></span>插件总数 <b>' + nf(plugins.length) + '</b></span>' +
+      '<span class="pill"><span class="dot cyan"></span>npm 直装 <b>' + nf(npmCount) + '</b></span>' +
+      '<span class="pill"><span class="dot blue"></span>GitHub 直装 <b>' + nf(gitCount) + '</b></span>' +
+      '<span class="pill"><span class="dot amber"></span>目录更新 <b>' + esc((DATA.sourceUpdated || '').slice(0, 10)) + '</b></span>';
+    $('gen').textContent = (DATA.generatedAt || '').replace('T', ' ').slice(0, 19) || '—';
+    $('genCount').textContent = nf(plugins.length);
+  }
+
+  function renderCats() {
+    const counts = {};
+    plugins.forEach(function (p) { counts[p.category] = (counts[p.category] || 0) + 1; });
+    const html = ['<option value="all">全部分类</option>'].concat(
+      Object.keys(counts)
+        .sort(function (a, b) { return counts[b] - counts[a]; })
+        .map(function (k) {
+          return '<option value="' + esc(k) + '">' + esc(catLabel(k)) + ' (' + counts[k] + ')</option>';
+        })
+    ).join('');
+    catEl.innerHTML = html;
+  }
+
+  // ---------- 事件 ----------
+  document.querySelectorAll('.tab').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      mode = btn.dataset.mode;
+      visible = 60;
+      document.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('on', b === btn); });
+      render();
+    });
+  });
+  let searchTimer = null;
+  searchEl.addEventListener('input', function () {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function () { query = searchEl.value; visible = 60; render(); }, 120);
+  });
+  catEl.addEventListener('change', function () { cat = catEl.value; visible = 60; render(); });
+  $('more').addEventListener('click', function () { visible += 60; render(); });
+
+  // ---------- 启动 ----------
+  renderStats();
+  renderCats();
+  render();
+})();
+</script>
+</body>
+</html>

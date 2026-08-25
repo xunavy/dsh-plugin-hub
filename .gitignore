@@ -1,0 +1,10 @@
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.log
+
+# Node
+node_modules/
+
+# 编译产物由 update.mjs 生成，但 index.html 与 data/*.json 是站点内容，需要入库
