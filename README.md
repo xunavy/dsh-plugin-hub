@@ -34,6 +34,21 @@
 
 ---
 
+## 部署到 Render.com（可选，境外 CDN 更稳）
+
+仓库根目录已自带 `render.yaml`，可用 Render Blueprint 一键上线：
+
+1. 登录 https://render.com （用 GitHub 账号授权）
+2. 右上 **New → Blueprint**
+3. 选择仓库 `xunavy/dsh-plugin-hub` → Render 自动读取 `render.yaml` → **Apply**
+4. 完成后访问：`https://dsh-plugin-hub.onrender.com`（改名后域名跟变）
+
+或手动：**New → Static Site** → 连接仓库 → **Publish directory** 填 `docs` → **Create**。
+
+> 站点为预构建（`docs/index.html` 自包含、内嵌「一键拉取最新插件」），无需 build 命令；每次 push 到 main 自动重新部署。
+
+---
+
 ## 直接加载 link 是什么
 
 每张插件卡片的复制按钮即「直接加载链接」，例如：

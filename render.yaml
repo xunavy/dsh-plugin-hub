@@ -1,0 +1,7 @@
+services:
+  # 静态站点：发布仓库里的 docs/ 目录（预构建，无需 build 命令）
+  # 用 Render Blueprint 一键部署：Render → New → Blueprint → 选此仓库 → Apply
+  - type: web
+    name: dsh-plugin-hub
+    runtime: static
+    staticPublishPath: ./docs
