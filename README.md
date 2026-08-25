@@ -14,10 +14,23 @@
 | 想做什么 | 操作 |
 | --- | --- |
 | 拉取最新插件 + 刷新榜单看板 | 双击 `update.bat`（或命令行运行 `node lib\update.mjs`） |
-| 在浏览器里打开看板 | 双击 `serve.bat`（自动开 `http://127.0.0.1:4545`），或直接双击 `index.html` |
-| 拿到机读榜单数据 | 看 `data\top.json` / `data\catalog.json` |
+| 在浏览器里打开看板 | 双击 `serve.bat`（自动开 `http://127.0.0.1:4545`），或直接双击 `docs\index.html` |
+| 拿到机读榜单数据 | 看 `data\top.json` / `data\catalog.json`（公开接口在 `docs\data\`） |
 
-`index.html` 是**自包含**的（数据内嵌），断网也能双击打开；需要在线最新数据时运行一次 `update.bat`。
+`docs\index.html` 是**自包含**的（数据内嵌），断网也能双击打开；需要在线最新数据时运行一次 `update.bat`。
+
+---
+
+## 发布到公网（GitHub Pages，一键上线）
+
+站点静态文件全部生成在 `docs\` 目录，可直接用 GitHub Pages 托管：
+
+1. 仓库 → **Settings** → **Pages**
+2. **Build and deployment → Source** 选 **`Deploy from a branch`**
+3. Branch 选 **`main`**，目录选 **`/docs`** → **Save**
+4. 稍后访问：`https://<你的用户名>.github.io/dsh-plugin-hub/`
+
+每次 `git push` 或重跑 `update.bat` 并提交后，站点即更新。
 
 ---
 
@@ -58,15 +71,17 @@ dsh plugin --profile web add github:owner/repo#path:/packages/sub
 
 ```
 D:\DSH-PluginHub\
-├─ index.html           # 生成的自包含聚合看板（数据内嵌）
-├─ serve.mjs            # 零依赖静态服务器（node serve.mjs [端口]）
+├─ docs\                # 发布目录（GitHub Pages 用 /docs 部署）
+│  ├─ index.html        # 生成的自包含聚合看板（数据内嵌）
+│  └─ data\             # 公开机读数据 top.json / catalog.json / meta.json
+├─ serve.mjs            # 零依赖静态服务器（服务 docs\，node serve.mjs [端口]）
 ├─ serve.bat / update.bat
 ├─ site\
 │  └─ template.html     # 看板模板（build 时注入数据）
 ├─ lib\
 │  ├─ fetch.mjs         # 抓取官方 plugins.json（npm tarball 备用 + 本地缓存兜底）
 │  ├─ rank.mjs          # 排名算法（热门/下载/星标/新晋）
-│  ├─ build.mjs         # 生成 data/top.json 与 index.html
+│  ├─ build.mjs         # 生成 docs/index.html 与榜单 data/top.json
 │  └─ update.mjs        # 一键编排：抓取 → 建榜 → 出看板
 └─ data\
    ├─ catalog.json      # 最新官方目录快照（2171 插件，含 install 命令）
@@ -96,4 +111,4 @@ D:\DSH-PluginHub\
 ## 安全提示
 
 插件会以你的权限在本机运行**第三方代码**，可读取文件、使用凭证、联网。
-榜单收录 ≠ 安全审查；安装前请先点击卡片上的 **GitHub ↗** 审阅源码。"# dsh-plugin-hub" 
+榜单收录 ≠ 安全审查；安装前请先点击卡片上的 **GitHub ↗** 审阅源码。

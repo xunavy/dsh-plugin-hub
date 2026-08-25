@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * 极简静态服务器（零依赖）。
+ * 极简静态服务器（零依赖）。站点根目录 = docs/，与 GitHub Pages 的 /docs 部署保持一致。
  * 用法：node serve.mjs [端口]   （默认 4545）
  */
 import { createServer } from 'node:http'
 import { readFile } from 'node:fs/promises'
-import { extname, join, normalize, resolve } from 'node:path'
+import { extname, join, resolve, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const ROOT = fileURLToPath(new URL('.', import.meta.url))
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), 'docs')
 const PORT = Number(process.argv[2] || process.env.PORT || 4545)
 
 const MIME = {
